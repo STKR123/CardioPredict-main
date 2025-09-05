@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CardioPredict | About</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #021E3D, #0B6E4F);
+      color: #fff;
+      overflow-x: hidden;
+      animation: bgShift 15s infinite alternate;
+    }
+
+    @keyframes bgShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
+    nav.top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    nav.top-nav strong {
+      font-size: 1.5rem;
+      color: #FFD700;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    nav.top-nav a {
+      color: #FFD700;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    nav.top-nav a:hover {
+      color: #FFEB3B;
+      text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+    }
+
+    nav.top-nav a.active {
+      color: #FFEB3B;
+      font-weight: 600;
+    }
+
+    nav.top-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #FFEB3B;
+      animation: underlineAnim 0.3s ease forwards;
+    }
+
+    @keyframes underlineAnim {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    .container {
+      padding: 60px 20px 120px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3.2rem;
+      color: #FFD700;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+      animation: fadeInDown 1s ease-out;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      color: #FFEB3B;
+      margin: 40px 0 20px;
+      text-transform: uppercase;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .subtitle {
+      color: #E0E0E0;
+      font-size: 1.2rem;
+      max-width: 900px;
+      margin: 0 auto 50px;
+      line-height: 1.8;
+      animation: fadeIn 1.5s ease-out;
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 60px;
+      padding: 0 20px;
+    }
+
+    .team-card {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 25px;
+      text-align: center;
+      backdrop-filter: blur(8px);
+      transition: all 0.4s ease;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+      animation: slideUp 0.5s ease-out backwards;
+      animation-fill-mode: backwards;
+    }
+
+    .team-card:nth-child(1) { animation-delay: 0.1s; }
+    .team-card:nth-child(2) { animation-delay: 0.2s; }
+    .team-card:nth-child(3) { animation-delay: 0.3s; }
+    .team-card:nth-child(4) { animation-delay: 0.4s; }
+    .team-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .team-card:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .team-card img {
+      width: 170px;   /* Increased size */
+      height: 170px;
+      object-fit: cover;
+
+      /* Shape options */
+      border-radius: 25px; /* Rounded square (change to 50% for circle) */
+
+      /* Stylish border */
+      border: 5px solid transparent;
+      background: linear-gradient(135deg, #ff6a00, #ee0979) padding-box, 
+              linear-gradient(135deg, #ffeb3b, #00e5ff) border-box;
+
+      /* Effects */
+       box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+       margin-bottom: 20px;
+      transition: all 0.4s ease;
+}
+
+  .team-card:hover img {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 
+              0 0 25px rgba(255, 255, 255, 0.4);
+}
+
+    .team-card h3 {
+      color: #FFD700;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+      text-transform: uppercase;
+    }
+
+    .team-card p {
+      margin: 8px 0;
+      font-size: 1rem;
+      color: #ddd;
+    }
+
+    .team-card a {
+      color: #FFD700;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .team-card a:hover {
+      color: #FFEB3B;
+      text-shadow: 0 0 10px rgba(255, 235, 59, 0.7);
+    }
+
+    footer {
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 215, 0, 0.3);
+      padding: 20px 0;
+      text-align: center;
+      color: #ccc;
+      font-size: 0.9rem;
+      backdrop-filter: blur(10px);
+      margin-top: 40px;
+    }
+
+    footer p {
+      margin: 5px 0;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @media (max-width: 768px) {
+      nav.top-nav {
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      nav.top-nav a {
+        margin: 10px 0;
+      }
+
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <strong>CardioPredict</strong>
+    <div>
+      <a href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
+      <a href="{{ url_for('about') }}" class="active">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>About CardioPredict</h1>
+    <p class="subtitle">
+      CardioPredict is an innovative AI-powered platform dedicated to transforming heart health monitoring. 
+      By leveraging advanced algorithms, we analyze key medical parameters to predict heart conditions with precision, 
+      offering personalized diet plans and lifestyle advice. Our goal is to empower individuals with accessible, 
+      proactive heart care solutions.
+    </p>
+
+    <!-- Team Members Heading -->
+    <h2>Team Members Details</h2>
+
+    <!-- Team Members -->
+    <div class="team-grid">
+      <div class="team-card">
+        <img src="{{ url_for('static', filename='assets/harika.jpg') }}" alt="Member 1">
+        <h3>Harika</h3>
+        <p>Branch: CSE-AI</p>
+        <p>Year: 3rd</p>
+        <p>Email: <a href="mailto:seemakurtih@gmail.com">seemakurtih@gmail.com</a></p>
+        <p><a href="https://www.linkedin.com/in/harika-seemakurti-00952b2b7" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+
+      <div class="team-card">
+        <img src="{{ url_for('static', filename='assets/Pavani.jpg') }}" alt="Member 2">
+        <h3>Pavani Parla</h3>
+        <p>Branch: CSE-AI</p>
+        <p>Year: 3rd</p>
+        <p>Email: <a href="mailto:pavaniparla19@gmail.com">pavaniparla19@gmail.com</a></p>
+        <p><a href="https://www.linkedin.com/in/pavani-parla-658829316?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+
+      <div class="team-card">
+        <img src="{{ url_for('static', filename='assets/Tarun.jpg') }}" alt="Member 3">
+        <h3>Tharun Kumar Reddy</h3>
+        <p>Branch: CSE-AI</p>
+        <p>Year: 3rd</p>
+        <p>Email: <a href="mailto:sajjala.kumar123@gmail.com">sajjala.kumar123@gmail.com</a></p>
+        <p><a href="https://www.linkedin.com/in/sajjala-s-t-k-4aba702b6?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+
+      <div class="team-card">
+        <img src="{{ url_for('static', filename='assets/harsha.jpg') }}" alt="Member 4">
+        <h3>Harsha Vardhan</h3>
+        <p>Branch: CSE-AI</p>
+        <p>Year: 3rd</p>
+        <p>Email: <a href="mailto:vaharsha9@gmail.com">vaharsha9@gmail.com</a></p>
+        <p><a href="https://www.linkedin.com/in/mukkala-harsha-vardhan-9182942a2?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+
+      <div class="team-card">
+        <img src="{{ url_for('static', filename='assets/pavan.jpg') }}" alt="Member 5">
+        <h3>Pavan Sankar</h3>
+        <p>Branch: CSE-AI</p>
+        <p>Year: 3rd</p>
+        <p>Email: <a href="mailto:pavansankar280@gmail.com">pavansankar280@gmail.com</a></p>
+        <p><a href="https://www.linkedin.com/in/pavan-sankar-5b3a4832b?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noopener">LinkedIn</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer>
+    <p>&copy; 2025 CardioPredict. All Rights Reserved.</p>
+    <p>Developed with ❤️ by Team CardioPredict</p>
+  </footer>
+
+</body>
+</html>

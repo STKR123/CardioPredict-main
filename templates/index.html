@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardio Predict</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+    <div class="container">
+         <h1><span class="emoji">🫀</span> Cardio Predict <span class="emoji">🩺</span></h1>
+        <p class="subtitle">Predict the type of heart disease based on your health data</p>
+
+        <form method="POST">
+            <div class="form-group">
+                <label>Age</label>
+                <input type="number" name="age" required placeholder="Enter your age" title="Enter your age">
+            </div>
+
+            <div class="form-group">
+                <label for="sex">Sex</label>
+                <select id="sex" name="sex" required>
+                    <option value="1">Male</option>
+                    <option value="0">Female</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cp">Chest Pain Type</label>
+                <select id="cp" name="cp" required>
+                    <option value="0">0 - Typical Angina</option>
+                    <option value="1">1 - Atypical Angina</option>
+                    <option value="2">2 - Non-Anginal Pain</option>
+                    <option value="3">3 - Asymptomatic</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Resting Blood Pressure (mm Hg)</label>
+                <input type="number" name="trestbps" required>
+            </div>
+
+            <div class="form-group">
+                <label>Cholesterol (mg/dL)</label>
+                <input type="number" name="chol" required>
+            </div>
+
+            <div class="form-group">
+                <label>Fasting Blood Sugar</label>
+                <select name="fbs" required>
+                    <option value="1">1 - High (> 120 mg/dl)</option>
+                    <option value="0">0 - Normal</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Rest ECG</label>
+                <select name="restecg" required>
+                    <option value="0">0 - Normal</option>
+                    <option value="1">1 - ST-T Abnormality</option>
+                    <option value="2">2 - Left Ventricular Hypertrophy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum Heart Rate Achieved</label>
+                <input type="number" name="thalach" required>
+            </div>
+
+            <div class="form-group">
+                <label>Exercise Induced Angina</label>
+                <select name="exang" required>
+                    <option value="1">1 - Yes</option>
+                    <option value="0">0 - No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Oldpeak (ST depression)</label>
+                <input type="text" name="oldpeak" required>
+            </div>
+
+            <div class="form-group">
+                <label>Slope of ST Segment</label>
+                <select name="slope" required>
+                    <option value="0">0 - Upsloping</option>
+                    <option value="1">1 - Flat</option>
+                    <option value="2">2 - Downsloping</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>CA (Major Vessels Colored)</label>
+                <input type="number" name="ca" step="0.1" required>
+            </div>
+
+            <div class="form-group">
+                <label>Thalassemia</label>
+                <select name="thal" required>
+                    <option value="0">0 - Fixed Defect</option>
+                    <option value="1">1 - Normal</option>
+                    <option value="2">2 - Reversible Defect</option>
+                </select>
+            </div>
+
+            <button type="submit" class="predict-btn">💡 Predict</button>
+        </form>
+
+        {% if prediction %}
+        <div class="result-box">
+            <h3>🧠 Predicted Disease Type:</h3>
+            <p><strong>{{ prediction }}</strong></p>
+            <form action="{{ url_for('result') }}" method="POST" class="result-form">
+                <input type="hidden" name="disease" value="{{ prediction }}">
+                <button type="submit" class="view-reason-btn">📋 View Reason & Diet Plan</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

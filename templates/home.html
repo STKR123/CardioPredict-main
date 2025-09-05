@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CardioPredict | Home</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(120deg, #021E3D, #0B6E4F);
+      color: #fff;
+      overflow-x: hidden;
+      animation: bgPulse 10s infinite alternate;
+    }
+
+    @keyframes bgPulse {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 100% 100%; }
+    }
+
+    nav.top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255, 215, 0, 0.3);
+    }
+
+    nav.top-nav strong {
+      font-size: 1.8rem;
+      color: #FFD700;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.6);
+    }
+
+    nav.top-nav a {
+      color: #FFD700;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    nav.top-nav a:hover {
+      color: #FFEB3B;
+      text-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
+    }
+
+    nav.top-nav a.active {
+      color: #FFEB3B;
+      font-weight: 600;
+    }
+
+    nav.top-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: #FFEB3B;
+      animation: underlineAnim 0.3s ease forwards;
+    }
+
+    @keyframes underlineAnim {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    .container {
+      padding: 60px 20px 120px;
+      text-align: center;
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      color: #FFD700;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.7);
+    }
+
+    .subtitle {
+      color: #E0E0E0;
+      font-size: 1.3rem;
+      margin-bottom: 50px;
+      animation: slideUp 1.2s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    .feature-box {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      padding: 35px;
+      backdrop-filter: blur(8px);
+      transition: all 0.4s ease;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      animation: scaleIn 0.8s ease-out backwards;
+    }
+
+    .feature-box:nth-child(1) { animation-delay: 0.1s; }
+    .feature-box:nth-child(2) { animation-delay: 0.2s; }
+    .feature-box:nth-child(3) { animation-delay: 0.3s; }
+    .feature-box:nth-child(4) { animation-delay: 0.4s; }
+
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .feature-box:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .feature-box h3 {
+      color: #FFD700;
+      margin-bottom: 15px;
+      font-size: 1.6rem;
+      text-transform: uppercase;
+    }
+
+    .feature-box p {
+      font-size: 1rem;
+      color: #ddd;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+
+    .feature-box a {
+      color: #FFD700;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .feature-box a:hover {
+      color: #FFEB3B;
+      text-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+    }
+
+    .chatbot-toggle {
+      position: fixed;
+      bottom: 90px;
+      right: 25px;
+      background: linear-gradient(45deg, #FFD700, #FFEB3B);
+      border-radius: 50%;
+      width: 70px;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      transition: all 0.4s ease;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .chatbot-toggle:hover {
+      transform: scale(1.15);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.7);
+    }
+
+    .chatbot-box {
+      display: none;
+      position: fixed;
+      bottom: 170px;
+      right: 25px;
+      width: 400px;
+      height: 400px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      z-index: 1000;
+      animation: popIn 0.5s ease-out;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .chatbot-box iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    footer.bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      border-top: 1px solid rgba(255, 215, 0, 0.3);
+      display: flex;
+      justify-content: space-around;
+      padding: 15px 0;
+      backdrop-filter: blur(10px);
+    }
+
+    footer.bottom-nav a {
+      color: #ccc;
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.3s ease;
+    }
+
+    footer.bottom-nav a:hover {
+      color: #FFD700;
+      transform: scale(1.1);
+    }
+
+    footer.bottom-nav a.active {
+      color: #FFD700;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      nav.top-nav {
+        flex-direction: column;
+        padding: 15px;
+      }
+
+      nav.top-nav a {
+        margin: 10px 0;
+      }
+
+      .container {
+        padding: 40px 10px 100px;
+      }
+
+      h1 {
+        font-size: 2.8rem;
+      }
+
+      .subtitle {
+        font-size: 1.1rem;
+      }
+
+      .features {
+        grid-template-columns: 1fr;
+      }
+
+      .chatbot-toggle {
+        width: 60px;
+        height: 60px;
+        font-size: 28px;
+      }
+
+      .chatbot-box {
+        width: 300px;
+        height: 300px;
+        bottom: 150px;
+      }
+    }
+  </style>
+
+  <script>
+    function toggleChatbot() {
+      const box = document.getElementById("chatbotBox");
+      box.style.display = box.style.display === "block" ? "none" : "block";
+    }
+  </script>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div><strong>CardioPredict</strong></div>
+    <div>
+      <a href="{{ url_for('home') }}" class="active">Home</a>
+      <a href="{{ url_for('profile') }}">Profile</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1>🫀 CardioPredict</h1>
+    <p class="subtitle">Your AI assistant for heart prediction, care & health guidance.</p>
+
+    <div class="features">
+      <div class="feature-box">
+        <h3>💡 Prediction</h3>
+        <p>Get an AI-based heart disease prediction instantly.</p>
+        <a href="{{ url_for('index') }}">Try it Now →</a>
+      </div>
+      <div class="feature-box">
+        <h3>🍎 Diet & Precautions</h3>
+        <p>Personalized diet plan & medical precautions based on your prediction.</p>
+        <a href="{{ url_for('result') }}">View Details →</a>
+      </div>
+      <div class="feature-box">
+        <h3>🕒 Care Reminder</h3>
+        <p>Set daily care tasks like taking medicine & get email alerts.</p>
+        <a href="{{ url_for('todo') }}">Set Reminders →</a>
+      </div>
+      <div class="feature-box">
+        <h3>🤖 Chatbot</h3>
+        <p>Ask our AI doctor any health-related question.</p>
+        <a href="#" onclick="toggleChatbot()">Open Chat →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chatbot Popup -->
+  <div id="chatbotBox" class="chatbot-box">
+    <iframe src="{{ url_for('chatbot') }}"></iframe>
+  </div>
+
+  <!-- Chatbot Toggle -->
+  <div class="chatbot-toggle" onclick="toggleChatbot()" title="Ask Doctor 🤖">
+    🩺
+  </div>
+
+  <!-- Bottom Navigation -->
+  <footer class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="active">
+      <span>🏠</span>
+      Home
+    </a>
+    <a href="{{ url_for('index') }}">
+      <span>💡</span>
+      Predict
+    </a>
+    <a href="{{ url_for('todo') }}">
+      <span>🕒</span>
+      Care
+    </a>
+  </footer>
+
+</body>
+</html>

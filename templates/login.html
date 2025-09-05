@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login - CardioPredict</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #021E3D, #0B6E4F);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.08);
+      padding: 40px;
+      border-radius: 18px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-container h2 {
+      font-size: 2.3rem;
+      margin-bottom: 20px;
+      color: #FFD700;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .submit-btn {
+      margin-top: 10px;
+      width: 100%;
+      padding: 12px;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, #FFD700, #FF8C00);
+      border: none;
+      border-radius: 10px;
+      color: #1a1a1a;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      transform: scale(1.02);
+      background: linear-gradient(135deg, #FFC400, #FF6B00);
+    }
+
+    .forgot-link {
+      margin-top: 10px;
+      text-align: right;
+    }
+
+    .forgot-link a {
+      color: #FFD700;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+
+    .forgot-link a:hover {
+      text-decoration: underline;
+    }
+
+    .register-prompt {
+      margin-top: 25px;
+      font-size: 0.95rem;
+      color: #ccc;
+    }
+
+    .register-prompt a {
+      color: #FFD700;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-prompt a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>🔐 Login to CardioPredict</h2>
+ <form action="{{ url_for('login') }}" method="POST">
+  <div class="form-group">
+    <label>Email</label>
+    <input type="email" name="email" required />
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" name="password" required />
+  </div>
+  <div class="forgot-link">
+    <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+  </div>
+  <button type="submit" class="submit-btn">Login</button>
+ </form>
+
+    <div class="register-prompt">
+      Don't have an account? <a href="{{ url_for('register') }}">Register Here</a>
+    </div>
+  </div>
+</body>
+</html>

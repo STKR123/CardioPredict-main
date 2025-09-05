@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to CardioPredict</title>
+ <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #021E3D, #0B6E4F);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .welcome-container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 50px 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .welcome-container h1 {
+      font-size: 2.8rem;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    .welcome-container p {
+      font-size: 1.15rem;
+      margin-bottom: 35px;
+      color: #dcdcdc;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 14px 36px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #FFDD00, #FFA500);
+      color: #1a1a1a;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(255, 221, 0, 0.4);
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    @media (max-width: 500px) {
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="welcome-container">
+    <h1>🫀 Welcome to CardioPredict 🩺</h1>
+    <p>Your AI companion for heart disease prediction, care, and wellness.</p>
+    <div class="btn-group">
+      <a href="{{ url_for('login') }}"><button class="btn">Login</button></a>
+      <a href="{{ url_for('register') }}"><button class="btn">Register</button></a>
+    </div>
+  </div>
+</body>
+</html>
