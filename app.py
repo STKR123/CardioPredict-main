@@ -6,6 +6,7 @@ import os
 from supabase import create_client, Client
 import google.generativeai as genai  # Gemini API
 from datetime import datetime
+import uuid
 
 # ------------------------- SETUP -------------------------
 
@@ -284,9 +285,46 @@ def profile():
 def about():
     return render_template('about.html')
 
-@app.route("/todo")
+
+# Dummy storage for reminders (replace with database in production)
+reminders_db = {}  # {user_id: [reminder_dict]}
+
+@app.route("/todo", methods=["GET", "POST"])
 def todo():
-    return render_template("todo.html")
+    user = session.get("user")
+    if not user:
+        return redirect(url_for("login"))
+
+    user_id = user["uid"]
+    if user_id not in reminders_db:
+        reminders_db[user_id] = []
+
+    if request.method == "POST":
+        task = request.form.get("task")
+        time = request.form.get("time")
+        if task and time:
+            reminder = {
+                "id": str(uuid.uuid4()),
+                "task": task,
+                "time": time,
+                "formatted_time": datetime.strptime(time, "%H:%M").strftime("%I:%M %p")
+            }
+            reminders_db[user_id].append(reminder)
+        return redirect(url_for("todo"))
+
+    return render_template("todo.html", reminders=reminders_db[user_id])
+
+@app.route("/delete_reminder/<rem_id>", methods=["POST"])
+def delete_reminder(rem_id):
+    user = session.get("user")
+    if not user:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    user_id = user["uid"]
+    reminders = reminders_db.get(user_id, [])
+    reminders_db[user_id] = [r for r in reminders if r["id"] != rem_id]
+    return jsonify({"success": True})
+
 
 @app.route("/chatbot", methods=["GET", "POST"])
 def chatbot():
