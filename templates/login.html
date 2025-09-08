@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Login - CardioPredict</title>
- <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <style>
     body {
       margin: 0;
@@ -17,7 +16,6 @@
       height: 100vh;
       color: white;
     }
-
     .login-container {
       background: rgba(255, 255, 255, 0.08);
       padding: 40px;
@@ -28,24 +26,20 @@
       max-width: 400px;
       text-align: center;
     }
-
     .login-container h2 {
       font-size: 2.3rem;
       margin-bottom: 20px;
       color: #FFD700;
     }
-
     .form-group {
       margin-bottom: 20px;
       text-align: left;
     }
-
     .form-group label {
       display: block;
       font-weight: 600;
       margin-bottom: 6px;
     }
-
     .form-group input {
       width: 100%;
       padding: 10px;
@@ -53,7 +47,6 @@
       border: none;
       font-size: 1rem;
     }
-
     .submit-btn {
       margin-top: 10px;
       width: 100%;
@@ -67,61 +60,90 @@
       cursor: pointer;
       transition: 0.3s ease;
     }
-
     .submit-btn:hover {
       transform: scale(1.02);
       background: linear-gradient(135deg, #FFC400, #FF6B00);
     }
-
     .forgot-link {
       margin-top: 10px;
       text-align: right;
     }
-
     .forgot-link a {
       color: #FFD700;
       font-size: 0.9rem;
       text-decoration: none;
     }
-
-    .forgot-link a:hover {
-      text-decoration: underline;
-    }
-
+    .forgot-link a:hover { text-decoration: underline; }
     .register-prompt {
       margin-top: 25px;
       font-size: 0.95rem;
       color: #ccc;
     }
-
     .register-prompt a {
       color: #FFD700;
       text-decoration: none;
       font-weight: bold;
     }
-
-    .register-prompt a:hover {
-      text-decoration: underline;
+    .register-prompt a:hover { text-decoration: underline; }
+    .resend-link {
+      margin-top: 15px;
+      font-size: 0.95rem;
+      color: #ff6b6b;
     }
+    .resend-link a {
+      color: #ffdd57;
+      font-weight: bold;
+      text-decoration: none;
+    }
+    .resend-link a:hover { text-decoration: underline; }
+
+    /* Flash messages */
+    .flash-message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: bold;
+      text-align: center;
+    }
+    .flash-message.success { background-color: #28a745; color: white; }
+    .flash-message.danger  { background-color: #dc3545; color: white; }
+    .flash-message.warning { background-color: #ff9800; color: white; }
+    .flash-message.info    { background-color: #2196F3; color: white; }
   </style>
 </head>
 <body>
   <div class="login-container">
     <h2>🔐 Login to CardioPredict</h2>
- <form action="{{ url_for('login') }}" method="POST">
-  <div class="form-group">
-    <label>Email</label>
-    <input type="email" name="email" required />
-  </div>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" name="password" required />
-  </div>
-  <div class="forgot-link">
-    <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
-  </div>
-  <button type="submit" class="submit-btn">Login</button>
- </form>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('login') }}" method="POST">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required autofocus autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required autocomplete="current-password"/>
+      </div>
+      <div class="forgot-link">
+        <a href="{{ url_for('forgot_password') }}">Forgot Password?</a>
+      </div>
+      <button type="submit" class="submit-btn">Login</button>
+    </form>
+
+    {% if show_resend %}
+      <div class="resend-link">
+        Email not verified? <a href="{{ url_for('resend_verification') }}">Resend Verification Email</a>
+      </div>
+    {% endif %}
 
     <div class="register-prompt">
       Don't have an account? <a href="{{ url_for('register') }}">Register Here</a>

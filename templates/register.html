@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register - CardioPredict</title>
-  <link rel="stylesheet" href="C:\Users\parla\cardio_predict\static\css\style.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <style>
     body {
       margin: 0;
@@ -77,30 +77,71 @@
       text-decoration: none;
       font-weight: bold;
     }
-    .login-prompt a:hover {
-      text-decoration: underline;
+    .login-prompt a:hover { text-decoration: underline; }
+
+    /* Flash messages */
+    .flash-message {
+      margin-bottom: 15px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      text-align: center;
+      font-weight: bold;
     }
+    .flash-message.success { background-color: #28a745; color: white; }
+    .flash-message.danger  { background-color: #dc3545; color: white; }
+    .flash-message.warning { background-color: #ff9800; color: white; }
+    .flash-message.info    { background-color: #2196F3; color: white; }
   </style>
 </head>
 <body>
   <div class="register-container">
     <h2>📝 Register at CardioPredict</h2>
- <form action="{{ url_for('register') }}" method="POST">
-  <div class="form-group">
-    <label>Full Name</label>
-    <input type="text" name="username" required />
-  </div>
-  <div class="form-group">
-    <label>Email</label>
-    <input type="email" name="email" required />
-  </div>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" name="password" required />
-  </div>
-  <button type="submit" class="submit-btn">Register</button>
- </form>
- 
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('register') }}" method="POST">
+      <div class="form-group">
+        <label>Full Name</label>
+        <input type="text" name="username" required autofocus autocomplete="name"/>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" required autocomplete="email"/>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="form-group">
+  <label>Password</label>
+  <input type="password" name="password" id="password" required minlength="8"
+         placeholder="Enter password"
+         oninvalid="this.setCustomValidity('Password must be at least 8 characters')"
+         oninput="this.setCustomValidity('')"/>
+  <button type="button" id="togglePassword">👁️ Show</button>
+</div>
+
+<script>
+const togglePassword = document.querySelector('#togglePassword');
+const password = document.querySelector('#password');
+
+togglePassword.addEventListener('click', () => {
+  const type = password.type === 'password' ? 'text' : 'password';
+  password.type = type;
+  togglePassword.textContent = type === 'password' ? '👁️ Show' : '🙈 Hide';
+});
+</script>
+
+      </div>
+      <button type="submit" class="submit-btn">Register</button>
+    </form>
+
     <div class="login-prompt">
       Already have an account? <a href="{{ url_for('login') }}">Login Here</a>
     </div>
