@@ -6,38 +6,32 @@ import os
 from supabase import create_client, Client
 import google.generativeai as genai  # Gemini API
 from datetime import datetime
-import uuid
-import sendgrid
-from sendgrid.helpers.mail import Mail
 
 # ------------------------- SETUP -------------------------
-# Load env
+
+# Load environment variables
 load_dotenv()
-
-# Flask
-app = Flask(__name__)
-app.secret_key = os.urandom(24)
-
-# Supabase
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_ANON_KEY")
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+print("Gemini API Key Loaded:", os.getenv("GEMINI_API_KEY"))
 
 # ML model
 model = pickle.load(open("model.pkl", "rb"))
 
-# Gemini setup
+# Supabase config (read from environment)
+SUPABASE_URL = "https://idilkmmvtxoigwzubrlp.supabase.co"
+SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlkaWxrbW12dHhvaWd3enVicmxwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1NTk5MTEsImV4cCI6MjA3MjEzNTkxMX0.0_yfVBa9sx6YuYbdFf9sB7gbWR8VkPgZsgLcLUPu0Es"
+
+
+
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_ANON_KEY)
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
+
+# Gemini API Config
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 model_gemini = genai.GenerativeModel("gemini-1.5-flash")
 
-# SendGrid setup
-SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
-FROM_EMAIL = "cardiopredict12@gmail.com"
-sg = sendgrid.SendGridAPIClient(SENDGRID_API_KEY)
-print("SendGrid API Key:", SENDGRID_API_KEY)
-
-
-# Labels
+# Label mapping
 label_mapping = {
     0: "No Disease",
     1: "Angina",
@@ -48,26 +42,34 @@ label_mapping = {
 }
 
 # ------------------------- HELPERS -------------------------
-def send_email(to_email, subject, html_content):
-    """Send email using SendGrid"""
-    message = Mail(from_email=FROM_EMAIL, to_emails=to_email, subject=subject, html_content=html_content)
-    try:
-        sg.send(message)
-        return True
-    except Exception as e:
-        print("Email error:", e)
-        return False
+
+def current_user():
+    """Return minimal user info from session, else None."""
+    return session.get("user")
+
+def require_user():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    return None
 
 def get_profile(user_id: str):
+    """Fetch profile from users table; returns {} if missing."""
     res = supabase.table("users").select("*").eq("id", user_id).limit(1).execute()
-    return res.data[0] if res.data else {}
+    rows = res.data or []
+    return rows[0] if rows else {}
 
 def ensure_profile(user_id: str, email: str, username: str = "User"):
+    """Create profile row if not exists (id is auth.users.id)."""
     existing = supabase.table("users").select("id").eq("id", user_id).limit(1).execute()
     if not existing.data:
-        supabase.table("users").insert({"id": user_id, "email": email, "username": username}).execute()
+        supabase.table("users").insert({
+            "id": user_id,
+            "email": email,
+            "username": username
+        }).execute()
 
 # ------------------------- ROUTES -------------------------
+
 @app.route('/')
 def main():
     return redirect(url_for('welcome'))
@@ -80,40 +82,37 @@ def welcome():
 def home():
     return render_template('home.html')
 
-# ---------- AUTH ----------
+# ------------------------- AUTH (Supabase) -------------------------
+
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
-
         try:
             auth_res = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            user = auth_res.user
-
+            user = auth_res.user  # gotrue User
             if not user:
-                # Invalid credentials
-                flash("❌ Invalid email or password.", "danger")
+                flash("❌ Login failed. Please check your email and password.", "danger")
                 return render_template("login.html")
-
-            # ✅ Successful login
             uid = user.id
+
+            # profile
             prof = get_profile(uid)
             username = prof.get("username", "User") if prof else "User"
             ensure_profile(uid, email, username)
 
-            session['user'] = {"uid": uid, "username": username, "email": email}
-            flash(f"✅ Welcome back, {username}!", "success")
+            session['user'] = {
+                "uid": uid,
+                "username": username,
+                "email": email
+            }
+            flash(f"Welcome back, {username}!", "success")
             return redirect(url_for('home'))
-
-        except Exception as e:  # ✅ your `except` was indented wrongly
-            print("Login error:", e)
-            flash("❌ Login failed due to an internal error. Please try again later.", "danger")
-            return render_template("login.html")
-
-    return render_template("login.html")
-
-
+        except Exception as e:
+            print(f"Supabase Auth Error: {e}")
+            return render_template("login.html", error=f"Login failed: {e}")
+    return render_template('login.html')
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -121,90 +120,25 @@ def register():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
         username = request.form.get('username', 'User').strip() or "User"
-
-        # ✅ Password length validation
-        if len(password) < 8:
-            flash("⚠️ Password must be at least 8 characters long.", "warning")
-            return render_template("register.html")
-
         try:
-            # Register user in Supabase
-            signup = supabase.auth.sign_up({"email": email, "password": password})
+            # Sign up (may require email confirmation depending on your Supabase auth settings)
+            signup = supabase.auth.sign_up({"email": email, "password": password, "options": {"data": {"username": username}}})
             user = signup.user
+            if not user:
+                # If email confirm is ON, user may be None until they confirm
+                flash("Check your email to confirm your account.", "info")
+                return redirect(url_for('login'))
 
-            if user:
-                uid = user.id
-                ensure_profile(uid, email, username)
+            uid = user.id
+            ensure_profile(uid, email, username)
 
-                # Auto-login user (no email verification required)
-                session['user'] = {"uid": uid, "username": username, "email": email}
-
-                flash(f"✅ Registration successful! Welcome, {username}.", "success")
-                return redirect(url_for('home'))
-            else:
-                flash("❌ Registration failed. Please try again.", "danger")
-
+            session['user'] = {"uid": uid, "username": username, "email": email}
+            flash("Registration successful! Welcome!", "success")
+            return redirect(url_for('home'))
         except Exception as e:
-            print("Register error:", e)
-            flash("❌ Registration failed due to an internal error. Please try again later.", "danger")
-
+            print(f"Supabase SignUp Error: {e}")
+            return render_template("register.html", error=f"Registration failed: {e}")
     return render_template('register.html')
-
-
-
-
-@app.route('/verify/<user_id>')
-def verify(user_id):
-    flash("✅ Your email has been verified!", "success")
-    return redirect(url_for("login"))
-
-# ------------------ FORGOT PASSWORD ------------------
-@app.route("/forgot_password", methods=["GET", "POST"])
-def forgot_password():
-    if request.method == "POST":
-        email = request.form.get("email", "").strip()
-        try:
-            # Sends password reset email via Supabase
-            response = supabase.auth.reset_password_for_email(email)
-            print("Supabase reset response:", response)  # debug
-
-            flash(
-                "Password reset email sent! Check your inbox (or spam folder).",
-                "info"
-            )
-            return redirect(url_for("login"))
-        except Exception as e:
-            print("Forgot password error:", e)
-            flash("Error sending reset email. Make sure the email is registered.", "danger")
-    return render_template("forgotPassword.html")
-
-
-# ------------------ RESET PASSWORD ------------------
-@app.route("/reset-password/<access_token>", methods=["GET", "POST"])
-def reset_password(access_token):
-    """
-    Supabase sends a reset link like:
-    https://your-app-url/reset-password?access_token=<token>
-    Use this token to verify and update password.
-    """
-    if request.method == "POST":
-        new_password = request.form.get("password", "").strip()
-        try:
-            # Update password using access token from email link
-            res = supabase.auth.update_user(
-                {"password": new_password}, 
-                access_token=access_token
-            )
-            print("Password reset response:", res)
-            flash("Password reset successful! Please log in.", "success")
-            return redirect(url_for("login"))
-        except Exception as e:
-            print("Reset password error:", e)
-            flash("Failed to reset password. Try again.", "danger")
-
-    return render_template("resetPassword.html", access_token=access_token)
-
-
 
 @app.route('/logout')
 def logout():
@@ -216,16 +150,45 @@ def logout():
     flash("Logged out successfully.", "info")
     return redirect(url_for('welcome'))
 
-# ---------- PREDICTION ----------
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get('email', '').strip()
+        try:
+            # Optional: set a redirect URL route in your app that handles resetting
+            supabase.auth.reset_password_for_email(email)
+            flash("Password reset email sent!", "success")
+            return redirect(url_for('login'))
+        except Exception as e:
+            flash(f"Error: {e}", "danger")
+    return render_template("forgotPassword.html")
+
+# ------------------------- PREDICTION -------------------------
+
 @app.route("/index", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
         try:
-            input_data = {k: float(request.form[k]) if k not in ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'thal']
-                          else int(request.form[k]) for k in request.form}
+            input_data = {
+                'age': int(request.form['age']),
+                'sex': int(request.form['sex']),
+                'cp': int(request.form['cp']),
+                'trestbps': float(request.form['trestbps']),
+                'chol': float(request.form['chol']),
+                'fbs': int(request.form['fbs']),
+                'restecg': int(request.form['restecg']),
+                'thalach': float(request.form['thalach']),
+                'exang': int(request.form['exang']),
+                'oldpeak': float(request.form['oldpeak']),
+                'slope': int(request.form['slope']),
+                'ca': float(request.form['ca']),
+                'thal': int(request.form['thal'])
+            }
+
             pred = model.predict(pd.DataFrame([input_data]))[0]
             prediction = label_mapping.get(pred, "Unknown")
 
+            # Save to Supabase
             if 'user' in session:
                 supabase.table("predictions").insert({
                     "user_id": session['user']['uid'],
@@ -234,37 +197,54 @@ def index():
                     "created_at": datetime.utcnow().isoformat() + "Z"
                 }).execute()
 
+            # Redirect to result page with query params
             return redirect(url_for('result', prediction=prediction, **{k: str(v) for k, v in input_data.items()}))
+
         except Exception as e:
             return render_template("index.html", prediction=f"Error: {e}")
+
     return render_template("index.html")
 
 @app.route("/result")
 def result():
     prediction = request.args.get('prediction')
     user_data = {k: request.args.get(k) for k in request.args if k != 'prediction'}
+
     prompt = f"""
-    User data: {user_data}
-    Predicted disease: {prediction}.
-    Explain only possible medical reason with emojis.
+    The user has the following health data:
+    {user_data}
+    The predicted heart disease type is: {prediction}.
+    Explain ONLY the possible medical reason for this prediction based on the data with some emojis for better understanding.
     """
+
     try:
         ai_response = model_gemini.generate_content(prompt)
-        return render_template("result.html", prediction_result=prediction, prediction_reason=ai_response.text.strip(), user_data=user_data)
+        reason = ai_response.text.strip()
+
+        return render_template(
+            "result.html",
+            prediction_result=prediction,
+            prediction_reason=reason,
+            user_data=user_data
+        )
     except Exception as e:
         return f"Gemini API Error: {e}"
 
-# ---------- AI TOOLS ----------
+# ------------------------- AI TOOLS -------------------------
+
 @app.route("/get_precautions", methods=["POST"])
 def get_precautions():
     data = request.get_json()
     prediction = data.get("prediction", "")
     user_data = data.get("user_data", {})
+
     prompt = f"""
-    User data: {user_data}
-    Disease: {prediction}.
-    Provide top 8 precautions with emojis.
+    The user has the following health data:
+    {user_data}
+    The diagnosed heart disease type is: {prediction}.
+    Provide the TOP 8 most important medical precautions step by step with some emojis for better understanding.
     """
+
     try:
         ai_response = model_gemini.generate_content(prompt)
         return jsonify({"precautions": ai_response.text.strip()})
@@ -276,76 +256,64 @@ def generate_diet():
     data = request.get_json()
     reason = data.get("reason", "")
     health_issue = data.get("health_issue", "")
+
     prompt = f"""
-    Reason: {reason}
-    Health issue: {health_issue}
-    Give detailed diet plan with emojis.
+    Based on this reason for heart disease:
+    {reason}
+    And considering this additional health issue: {health_issue},
+    create a detailed, healthy diet plan with some emoji's to get user attraction and impression and better understanding.
     """
+
     try:
         ai_response = model_gemini.generate_content(prompt)
         return jsonify({"diet_plan": ai_response.text.strip()})
     except Exception as e:
         return jsonify({"diet_plan": f"Error: {e}"})
 
-# ---------- PROFILE / CHATBOT / TODO ----------
+# ------------------------- MISC PAGES -------------------------
+
 @app.route("/profile")
 def profile():
     if "user" not in session:
         return redirect(url_for("login"))
     uid = session["user"]["uid"]
-    return render_template("profile.html", user=get_profile(uid) or {})
+    user_data = get_profile(uid) or {}
+    return render_template("profile.html", user=user_data)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
 
-reminders_db = {}
-@app.route("/todo", methods=["GET", "POST"])
+@app.route("/todo")
 def todo():
-    user = session.get("user")
-    if not user:
-        return redirect(url_for("login"))
-    user_id = user["uid"]
-    reminders_db.setdefault(user_id, [])
-    if request.method == "POST":
-        task = request.form.get("task")
-        time = request.form.get("time")
-        if task and time:
-            reminder = {"id": str(uuid.uuid4()), "task": task, "time": time,
-                        "formatted_time": datetime.strptime(time, "%H:%M").strftime("%I:%M %p")}
-            reminders_db[user_id].append(reminder)
-        return redirect(url_for("todo"))
-    return render_template("todo.html", reminders=reminders_db[user_id])
-
-@app.route("/delete_reminder/<rem_id>", methods=["POST"])
-def delete_reminder(rem_id):
-    user = session.get("user")
-    if not user:
-        return jsonify({"error": "Unauthorized"}), 401
-    user_id = user["uid"]
-    reminders_db[user_id] = [r for r in reminders_db.get(user_id, []) if r["id"] != rem_id]
-    return jsonify({"success": True})
+    return render_template("todo.html")
 
 @app.route("/chatbot", methods=["GET", "POST"])
 def chatbot():
     if request.method == "GET":
         return render_template("chatbot.html")
-    data = request.get_json()
-    user_message = data.get("message", "")
-    if not user_message.strip():
-        return jsonify({"reply": "Please type something."})
-    prompt = f"""
-    You are CardioPredict's virtual assistant.
-    User says: {user_message}.
-    Reply with helpful info about heart health, diet, precautions.
-    """
-    try:
-        ai_response = model_gemini.generate_content(prompt)
-        return jsonify({"reply": ai_response.text.strip()})
-    except Exception as e:
-        return jsonify({"reply": f"Error: {e}"})
+    elif request.method == "POST":
+        data = request.get_json()
+        user_message = data.get("message", "")
+
+        if not user_message.strip():
+            return jsonify({"reply": "Please type something so I can help you."})
+
+        prompt = f"""
+        You are CardioPredict's virtual heart health assistant.
+        The user says: {user_message}.
+        Answer clearly and helpfully about heart health, precautions, or diet.
+        """
+
+        try:
+            ai_response = model_gemini.generate_content(prompt)
+            return jsonify({"reply": ai_response.text.strip()})
+        except Exception as e:
+            return jsonify({"reply": f"Error: {e}"})
 
 # ------------------------- RUN -------------------------
-if __name__ == "__main__":
-    app.run(debug=True)
 
+if __name__ == "__main__":
+
+    app.run(debug=True)
+      my flask code 
