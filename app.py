@@ -92,16 +92,11 @@ def login():
             user = auth_res.user
 
             if not user:
-                # This usually means invalid credentials
+                # Invalid credentials
                 flash("❌ Invalid email or password.", "danger")
                 return render_template("login.html")
 
-            # Check if email is verified
-            if not getattr(user, "email_confirmed_at", None):
-                flash("⚠️ Email not verified. Please check your inbox.", "warning")
-                return render_template("login.html")
-
-            # Successful login
+            # ✅ Successful login
             uid = user.id
             prof = get_profile(uid)
             username = prof.get("username", "User") if prof else "User"
@@ -111,13 +106,12 @@ def login():
             flash(f"✅ Welcome back, {username}!", "success")
             return redirect(url_for('home'))
 
-        except Exception as e:
-            # Here, it’s truly unexpected
+        except Exception as e:  # ✅ your `except` was indented wrongly
             print("Login error:", e)
             flash("❌ Login failed due to an internal error. Please try again later.", "danger")
             return render_template("login.html")
 
-    return render_template('login.html')
+    return render_template("login.html")
 
 
 
@@ -128,8 +122,13 @@ def register():
         password = request.form.get('password', '')
         username = request.form.get('username', 'User').strip() or "User"
 
+        # ✅ Password length validation
+        if len(password) < 8:
+            flash("⚠️ Password must be at least 8 characters long.", "warning")
+            return render_template("register.html")
+
         try:
-            # Supabase handles email verification automatically
+            # Register user in Supabase
             signup = supabase.auth.sign_up({"email": email, "password": password})
             user = signup.user
 
@@ -137,8 +136,11 @@ def register():
                 uid = user.id
                 ensure_profile(uid, email, username)
 
-                flash("✅ Registration successful! Please check your inbox to verify your email.", "success")
-                return redirect(url_for('login'))
+                # Auto-login user (no email verification required)
+                session['user'] = {"uid": uid, "username": username, "email": email}
+
+                flash(f"✅ Registration successful! Welcome, {username}.", "success")
+                return redirect(url_for('home'))
             else:
                 flash("❌ Registration failed. Please try again.", "danger")
 
@@ -147,6 +149,7 @@ def register():
             flash("❌ Registration failed due to an internal error. Please try again later.", "danger")
 
     return render_template('register.html')
+
 
 
 
@@ -345,3 +348,4 @@ def chatbot():
 # ------------------------- RUN -------------------------
 if __name__ == "__main__":
     app.run(debug=True)
+
