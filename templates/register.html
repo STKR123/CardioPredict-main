@@ -119,23 +119,9 @@
       <div class="form-group">
         <label>Password</label>
         <div class="form-group">
-  <input type="password" name="password" id="password" required minlength="8"
-         placeholder="Enter password"
-         oninvalid="this.setCustomValidity('Password must be at least 8 characters')"
-         oninput="this.setCustomValidity('')"/>
-  <button type="button" id="togglePassword">👁️ Show</button>
-</div>
+  <input type="password" name="password" placeholder="Enter Password" required minlength="8">
+<small>Password must be at least 8 characters long.</small>
 
-<script>
-const togglePassword = document.querySelector('#togglePassword');
-const password = document.querySelector('#password');
-
-togglePassword.addEventListener('click', () => {
-  const type = password.type === 'password' ? 'text' : 'password';
-  password.type = type;
-  togglePassword.textContent = type === 'password' ? '👁️ Show' : '🙈 Hide';
-});
-</script>
 
       </div>
       <button type="submit" class="submit-btn">Register</button>
@@ -147,3 +133,4 @@ togglePassword.addEventListener('click', () => {
   </div>
 </body>
 </html>
+
