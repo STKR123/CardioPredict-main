@@ -127,29 +127,27 @@ def register():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
         username = request.form.get('username', 'User').strip() or "User"
+
         try:
+            # Supabase handles email verification automatically
             signup = supabase.auth.sign_up({"email": email, "password": password})
             user = signup.user
+
             if user:
                 uid = user.id
                 ensure_profile(uid, email, username)
 
-                # Send verification email
-                verification_link = f"http://localhost:5000/verify/{uid}"
-                send_email(
-                    email,
-                    "Verify your CardioPredict Account",
-                    f"<p>Hello {username},</p><p>Click below to verify your account:</p><a href='{verification_link}'>Verify Email</a>"
-                )
-                flash("✅ Registration successful! Check your inbox to verify your email.", "success")
+                flash("✅ Registration successful! Please check your inbox to verify your email.", "success")
                 return redirect(url_for('login'))
             else:
-                flash("❌ Registration failed. Please check your email or try again.", "danger")
+                flash("❌ Registration failed. Please try again.", "danger")
 
         except Exception as e:
             print("Register error:", e)
-            flash(f"❌ Registration failed due to an internal error: {e}", "danger")
+            flash("❌ Registration failed due to an internal error. Please try again later.", "danger")
+
     return render_template('register.html')
+
 
 
 @app.route('/verify/<user_id>')
